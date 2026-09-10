@@ -6,7 +6,8 @@ FastAPI backend service for medical report OCR, biomarker extraction, and clinic
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routers import analysis, ocr, chat
-
+from database import Base, engine
+from models.report import MedicalReport
 app = FastAPI(
     title="MediScan AI - Clinical Analysis API",
     description="Enterprise-Grade AI-Powered Medical Report Intelligence & Biomarker Diagnostics API",
@@ -15,10 +16,14 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
-# Configure CORS
+Base.metadata.create_all(bind=engine)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:3000",
+        "https://mediscan-lo3yw5imo-patelvivek03892-2740s-projects.vercel.app",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

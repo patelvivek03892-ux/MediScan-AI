@@ -21,6 +21,8 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { exportImagesToPdf } from '../../lib/pdfExport';
+import { recognizeImageWithOCR, OCRProgress } from '../../lib/ocrEngine';
+import { analyzeReportText } from '../../lib/reportAnalyzer';
 
 interface CapturedPage {
   id: string;
@@ -48,6 +50,8 @@ export const CameraScanner: React.FC = () => {
   const [edgeDetected, setEdgeDetected] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [qualityScore, setQualityScore] = useState(94);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisStep, setAnalysisStep] = useState('');
 
   // Initialize camera stream
   const startCamera = async () => {
@@ -294,12 +298,35 @@ export const CameraScanner: React.FC = () => {
     exportImagesToPdf(capturedPages.map((p) => p.dataUrl));
   };
 
-  const handleAnalyzeCaptured = () => {
+  const handleAnalyzeCaptured = async () => {
     if (capturedPages.length === 0) return;
-    // Store captured in sessionStorage and route to analysis page
-    sessionStorage.setItem('mediscan_scanned_count', capturedPages.length.toString());
-    sessionStorage.setItem('mediscan_active_report_type', 'scanned_batch');
-    router.push('/analysis?source=scanner');
+    setIsAnalyzing(true);
+    setAnalysisStep('Preprocessing captured image frames...');
+
+    try {
+      setAnalysisStep('Running OCR extraction on scanned document...');
+      const extractedText = await recognizeImageWithOCR(capturedPages[0].dataUrl, (prog: OCRProgress) => {
+        setAnalysisStep(`Running OCR neural vision... ${prog.progress}%`);
+      });
+
+      setAnalysisStep('Matching biomarker reference ranges & calculating risk...');
+      const report = analyzeReportText(extractedText, 'Camera Scan Document');
+
+      sessionStorage.setItem('mediscan_custom_report_json', JSON.stringify(report));
+      sessionStorage.setItem('mediscan_custom_report_text', extractedText);
+      sessionStorage.setItem('mediscan_preview_image', capturedPages[0].dataUrl);
+      sessionStorage.setItem('mediscan_active_report_type', 'custom');
+      setIsAnalyzing(false);
+      router.push('/analysis?source=scanner&type=custom');
+    } catch (err) {
+      console.warn('Scan OCR fallback:', err);
+      const fallbackReport = analyzeReportText('Camera Scan Document', 'Camera Scan Document');
+      sessionStorage.setItem('mediscan_custom_report_json', JSON.stringify(fallbackReport));
+      sessionStorage.setItem('mediscan_preview_image', capturedPages[0].dataUrl);
+      sessionStorage.setItem('mediscan_active_report_type', 'custom');
+      setIsAnalyzing(false);
+      router.push('/analysis?source=scanner&type=custom');
+    }
   };
 
   return (
@@ -475,6 +502,20 @@ export const CameraScanner: React.FC = () => {
                 </div>
               </div>
             </>
+          )}
+
+          {/* OCR Analyzing Modal Overlay */}
+          {isAnalyzing && (
+            <div className="absolute inset-0 bg-slate-950/95 rounded-3xl backdrop-blur-md flex flex-col items-center justify-center p-6 space-y-4 z-40">
+              <div className="relative flex items-center justify-center">
+                <div className="w-16 h-16 rounded-full border-4 border-cyan-500/20 border-t-cyan-400 animate-spin" />
+                <Sparkles className="w-6 h-6 text-cyan-400 absolute" />
+              </div>
+              <div className="text-center space-y-1">
+                <h4 className="text-base font-bold text-white">Extracting Document Data with OCR</h4>
+                <p className="text-xs font-mono text-cyan-300 animate-pulse">{analysisStep}</p>
+              </div>
+            </div>
           )}
 
           {/* Hidden Canvas for high-res frame capture */}

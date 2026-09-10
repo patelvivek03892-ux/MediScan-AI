@@ -6,18 +6,18 @@ import {
   FileText,
   Download,
   Share2,
-  AlertTriangle,
-  HeartPulse,
-  Activity,
   Calendar,
   User,
   Building,
   Stethoscope,
   Sparkles,
   ArrowLeft,
-  Printer,
   ShieldCheck,
-  CheckCircle2
+  Eye,
+  EyeOff,
+  Edit3,
+  RefreshCw,
+  Image as ImageIcon
 } from 'lucide-react';
 import { MedicalReport } from '../../types/medical';
 import { METABOLIC_REPORT, CARDIAC_CRITICAL_REPORT, WELLNESS_NORMAL_REPORT } from '../../lib/sampleData';
@@ -27,24 +27,60 @@ import { BiomarkerTable } from '../../components/analysis/BiomarkerTable';
 import { ActionPlanCard } from '../../components/analysis/ActionPlanCard';
 import { OrganHealthRadar } from '../../components/charts/OrganHealthRadar';
 import { exportReportToPdf } from '../../lib/pdfExport';
+import { analyzeReportText } from '../../lib/reportAnalyzer';
 
 function AnalysisContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
   const typeParam = searchParams.get('type');
-  const sourceParam = searchParams.get('source');
 
   const [report, setReport] = useState<MedicalReport>(METABOLIC_REPORT);
   const [copied, setCopied] = useState(false);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [rawText, setRawOcrText] = useState<string>('');
+  const [showInspector, setShowInspector] = useState(false);
+  const [isEditingText, setIsEditingText] = useState(false);
+  const [editableText, setEditableText] = useState('');
 
   useEffect(() => {
+    // 1. Check if specific sample scenario requested in URL
     if (typeParam === 'cardiac') {
       setReport(CARDIAC_CRITICAL_REPORT);
-    } else if (typeParam === 'wellness') {
+      return;
+    }
+    if (typeParam === 'wellness') {
       setReport(WELLNESS_NORMAL_REPORT);
-    } else {
-      // Check session storage
+      return;
+    }
+    if (typeParam === 'metabolic') {
+      setReport(METABOLIC_REPORT);
+      return;
+    }
+
+    // 2. Check if a custom scanned/uploaded report was generated
+    if (typeof window !== 'undefined') {
+      const customReportJson = sessionStorage.getItem('mediscan_custom_report_json');
+      const customText = sessionStorage.getItem('mediscan_custom_report_text');
+      const img = sessionStorage.getItem('mediscan_preview_image');
+
+      if (img) setPreviewImage(img);
+      if (customText) {
+        setRawOcrText(customText);
+        setEditableText(customText);
+      }
+
+      if (customReportJson) {
+        try {
+          const parsed = JSON.parse(customReportJson);
+          setReport(parsed);
+          return;
+        } catch (e) {
+          console.warn('Could not parse stored report:', e);
+        }
+      }
+
+      // 3. Fallback to active report type from session
       const stored = sessionStorage.getItem('mediscan_active_report_type');
       if (stored === 'cardiac') {
         setReport(CARDIAC_CRITICAL_REPORT);
@@ -61,6 +97,18 @@ function AnalysisContent() {
       navigator.clipboard.writeText(window.location.href);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleReanalyzeEditedText = () => {
+    if (!editableText.trim()) return;
+    const reanalyzed = analyzeReportText(editableText, report.title);
+    setReport(reanalyzed);
+    setRawOcrText(editableText);
+    setIsEditingText(false);
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('mediscan_custom_report_json', JSON.stringify(reanalyzed));
+      sessionStorage.setItem('mediscan_custom_report_text', editableText);
     }
   };
 
@@ -89,6 +137,11 @@ function AnalysisContent() {
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-white/5 border border-white/10 text-slate-300">
                   OCR Accuracy: {(report.ocrConfidence * 100).toFixed(1)}%
                 </span>
+                {report.id.startsWith('REP-') && report.title.includes('Analysis:') && (
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                    Live Extracted
+                  </span>
+                )}
               </div>
               <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
                 {report.title}
@@ -96,7 +149,20 @@ function AnalysisContent() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2.5">
+            {/* Toggle Raw OCR Inspector */}
+            <button
+              onClick={() => setShowInspector(!showInspector)}
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl border text-xs font-semibold transition-all ${
+                showInspector
+                  ? 'bg-cyan-500/20 border-cyan-400 text-cyan-300'
+                  : 'bg-slate-900 border-white/10 text-slate-300 hover:text-white'
+              }`}
+            >
+              {showInspector ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+              <span>{showInspector ? 'Hide OCR Inspector' : 'Inspect OCR & Scan'}</span>
+            </button>
+
             <button
               onClick={handleShare}
               className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 border border-white/10 hover:bg-slate-800 text-xs text-slate-300 font-semibold transition-colors"
@@ -114,6 +180,82 @@ function AnalysisContent() {
             </button>
           </div>
         </div>
+
+        {/* OCR Inspector & Document Drawer */}
+        {showInspector && (
+          <div className="p-6 rounded-3xl bg-slate-900/80 border border-cyan-500/30 backdrop-blur-xl space-y-4 animate-fade-in">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-white/10">
+              <div className="flex items-center gap-2">
+                <FileText className="w-4 h-4 text-cyan-400" />
+                <h3 className="text-sm font-bold text-white">Extracted Document Data & OCR Viewer</h3>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setIsEditingText(!isEditingText)}
+                  className="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 flex items-center gap-1.5 border border-white/10"
+                >
+                  <Edit3 className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>{isEditingText ? 'Cancel Edit' : 'Edit Text / Add Biomarkers'}</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Document Image Preview (if uploaded or scanned) */}
+              <div className="space-y-2">
+                <span className="text-xs font-mono text-slate-400 flex items-center gap-1.5">
+                  <ImageIcon className="w-3.5 h-3.5 text-cyan-400" />
+                  Original Scan / Document Preview:
+                </span>
+                <div className="aspect-[4/3] rounded-2xl bg-slate-950 border border-white/10 overflow-hidden flex items-center justify-center p-2">
+                  {previewImage ? (
+                    <img
+                      src={previewImage}
+                      alt="Original Document Preview"
+                      className="max-h-full max-w-full object-contain rounded-lg"
+                    />
+                  ) : (
+                    <div className="text-center p-6 text-slate-500 text-xs space-y-1">
+                      <FileText className="w-8 h-8 mx-auto text-slate-600 mb-2" />
+                      <p>No document image preview stored.</p>
+                      <p className="text-[11px]">Analysis running from digital clinical records.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Raw OCR Text or Editor */}
+              <div className="space-y-2">
+                <span className="text-xs font-mono text-slate-400 flex items-center gap-1.5">
+                  <Edit3 className="w-3.5 h-3.5 text-cyan-400" />
+                  {isEditingText ? 'Edit Extracted Text & Click Re-Analyze:' : 'Extracted Text Layer:'}
+                </span>
+
+                {isEditingText ? (
+                  <div className="space-y-3">
+                    <textarea
+                      rows={8}
+                      value={editableText}
+                      onChange={(e) => setEditableText(e.target.value)}
+                      className="w-full bg-slate-950 border border-cyan-400/40 rounded-2xl p-3 text-xs font-mono text-slate-200 outline-none focus:border-cyan-400"
+                    />
+                    <button
+                      onClick={handleReanalyzeEditedText}
+                      className="flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-400 text-slate-950 font-bold text-xs"
+                    >
+                      <RefreshCw className="w-3.5 h-3.5" />
+                      <span>Re-Analyze Parameters</span>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="h-[220px] overflow-y-auto bg-slate-950 border border-white/10 rounded-2xl p-3 text-[11px] font-mono text-slate-300 whitespace-pre-wrap leading-relaxed">
+                    {rawText || report.rawText || 'No raw OCR text layer captured. Showing clinical analytical model.'}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Emergency Detection Banner (if critical) */}
         {report.emergencyAlert && (
