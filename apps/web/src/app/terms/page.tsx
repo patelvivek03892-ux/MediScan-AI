@@ -1,44 +1,41 @@
+'use client';
+
 import React from 'react';
 import { AlertTriangle } from 'lucide-react';
+import { useLanguage } from '../../lib/i18n/LanguageContext';
 
 export default function TermsPage() {
+  const { t } = useLanguage();
+
   return (
-    <div className="min-h-screen bg-slate-950 text-white pt-28 pb-16 px-4 sm:px-6 lg:px-8 relative">
-      <div className="max-w-3xl mx-auto space-y-8">
-        <div>
-          <h1 className="text-3xl font-extrabold tracking-tight">Terms of Service & Medical Disclaimer</h1>
-          <p className="text-xs text-slate-400 mt-1">Last Updated: August 2026</p>
-        </div>
+    <div className="py-8 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto space-y-6">
+      <div>
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">{t.terms.title}</h1>
+        <p className="text-xs text-slate-400 mt-1">{t.terms.lastUpdated}</p>
+      </div>
 
-        <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
-          <p>
-            <strong>Mandatory Medical Notice:</strong> The software and services provided by MediScan AI do not provide medical advice, diagnosis, or treatment. It is intended solely for educational, reference, and informational utility.
-          </p>
-        </div>
+      <div className="p-3.5 rounded-xl bg-amber-950/30 border border-amber-800/40 text-amber-200/90 text-xs flex items-start gap-2.5">
+        <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+        <p>
+          <strong className="text-amber-100">{t.terms.noticeTitle}</strong> {t.terms.noticeDesc}
+        </p>
+      </div>
 
-        <div className="space-y-6 text-xs text-slate-300 leading-relaxed bg-slate-900/60 p-6 sm:p-8 rounded-3xl border border-white/10">
-          <section className="space-y-2">
-            <h2 className="text-sm font-bold text-white uppercase tracking-wider">1. No Doctor-Patient Relationship</h2>
-            <p>
-              Use of the MediScan AI platform, camera scanner, and AI assistant does not establish a physician-patient relationship. You should never delay seeking medical advice, disregard medical recommendations, or discontinue medical treatment because of information provided by this application.
-            </p>
-          </section>
+      <div className="space-y-5 text-xs text-slate-300 leading-relaxed bg-slate-900/80 p-5 sm:p-6 rounded-xl border border-slate-800">
+        <section className="space-y-1.5">
+          <h2 className="text-xs font-bold text-white uppercase tracking-wider">{t.terms.s1Title}</h2>
+          <p>{t.terms.s1Desc}</p>
+        </section>
 
-          <section className="space-y-2">
-            <h2 className="text-sm font-bold text-white uppercase tracking-wider">2. Emergency Medical Situations</h2>
-            <p>
-              IF YOU BELIEVE YOU ARE EXPERIENCING A MEDICAL EMERGENCY, CHEST PAIN, STROKE SYMPTOMS, OR ACUTE SHORTNESS OF BREATH, IMMEDIATELY CALL 911 (OR YOUR LOCAL EMERGENCY SERVICE NUMBER) OR GO TO THE NEAREST EMERGENCY ROOM.
-            </p>
-          </section>
+        <section className="space-y-1.5">
+          <h2 className="text-xs font-bold text-white uppercase tracking-wider">{t.terms.s2Title}</h2>
+          <p>{t.terms.s2Desc}</p>
+        </section>
 
-          <section className="space-y-2">
-            <h2 className="text-sm font-bold text-white uppercase tracking-wider">3. Open-Source License (MIT)</h2>
-            <p>
-              MediScan AI is released under the permissive MIT Open Source License. The software is provided &quot;as is&quot;, without warranty of any kind, express or implied.
-            </p>
-          </section>
-        </div>
+        <section className="space-y-1.5">
+          <h2 className="text-xs font-bold text-white uppercase tracking-wider">{t.terms.s3Title}</h2>
+          <p>{t.terms.s3Desc}</p>
+        </section>
       </div>
     </div>
   );

@@ -12,12 +12,14 @@ import {
 } from 'lucide-react';
 import { Biomarker, BiomarkerCategory } from '../../types/medical';
 import { calculateSeverityColor } from '../../lib/reportAnalyzer';
+import { useLanguage } from '../../lib/i18n/LanguageContext';
 
 interface BiomarkerTableProps {
   biomarkers: Biomarker[];
 }
 
 export const BiomarkerTable: React.FC<BiomarkerTableProps> = ({ biomarkers }) => {
+  const { t } = useLanguage();
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
 
@@ -36,10 +38,10 @@ export const BiomarkerTable: React.FC<BiomarkerTableProps> = ({ biomarkers }) =>
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h3 className="text-xl font-bold text-white tracking-tight">
-            Biomarker Laboratory Profile
+            {t.analysis.biomarkersTitle}
           </h3>
           <p className="text-xs text-slate-400 mt-0.5">
-            Real-time reference interval comparison and automated clinical status mapping.
+            {t.analysis.biomarkersSubtitle}
           </p>
         </div>
 
@@ -49,7 +51,7 @@ export const BiomarkerTable: React.FC<BiomarkerTableProps> = ({ biomarkers }) =>
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Search biomarkers..."
+              placeholder={t.common.search}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="bg-slate-950/80 border border-white/10 rounded-xl pl-9 pr-3 py-1.5 text-xs text-slate-200 outline-none focus:border-cyan-400 transition-colors w-48 sm:w-56"
@@ -67,7 +69,7 @@ export const BiomarkerTable: React.FC<BiomarkerTableProps> = ({ biomarkers }) =>
                     : 'bg-slate-950/60 text-slate-400 hover:text-white border border-transparent'
                 }`}
               >
-                {cat}
+                {cat === 'ALL' ? t.common.all : cat}
               </button>
             ))}
           </div>
@@ -112,7 +114,7 @@ export const BiomarkerTable: React.FC<BiomarkerTableProps> = ({ biomarkers }) =>
                   <span className="text-xs text-slate-400 ml-1.5 font-medium">{bm.unit}</span>
                 </div>
                 <div className="text-right">
-                  <span className="text-[10px] text-slate-400 block">Normal Interval</span>
+                  <span className="text-[10px] text-slate-400 block">{t.analysis.bmColRange}</span>
                   <span className="text-xs font-mono text-slate-300 font-semibold">
                     {bm.refMin} – {bm.refMax} {bm.unit}
                   </span>
@@ -129,7 +131,7 @@ export const BiomarkerTable: React.FC<BiomarkerTableProps> = ({ biomarkers }) =>
                 </div>
                 <div className="flex justify-between text-[9px] text-slate-500 font-mono">
                   <span>Low</span>
-                  <span>Optimal</span>
+                  <span>{t.common.optimal}</span>
                   <span>High</span>
                 </div>
               </div>

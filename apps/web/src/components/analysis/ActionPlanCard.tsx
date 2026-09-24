@@ -12,12 +12,15 @@ import {
   Sparkles
 } from 'lucide-react';
 import { ActionPlan } from '../../types/medical';
+import { useLanguage } from '../../lib/i18n/LanguageContext';
 
 interface ActionPlanCardProps {
   actionPlan: ActionPlan;
 }
 
 export const ActionPlanCard: React.FC<ActionPlanCardProps> = ({ actionPlan }) => {
+  const { t } = useLanguage();
+
   return (
     <div className="rounded-3xl bg-slate-900/60 border border-white/10 p-6 md:p-8 backdrop-blur-xl space-y-6">
       <div className="flex items-center gap-3">
@@ -26,10 +29,10 @@ export const ActionPlanCard: React.FC<ActionPlanCardProps> = ({ actionPlan }) =>
         </div>
         <div>
           <h3 className="text-xl font-bold text-white tracking-tight">
-            Personalized Clinical Action & Lifestyle Protocol
+            {t.analysis.actionPlanTitle}
           </h3>
           <p className="text-xs text-slate-400">
-            AI-synthesized lifestyle modifications and curated physician discussion points.
+            {t.analysis.actionPlanSubtitle}
           </p>
         </div>
       </div>
@@ -39,7 +42,7 @@ export const ActionPlanCard: React.FC<ActionPlanCardProps> = ({ actionPlan }) =>
         <div className="p-5 rounded-2xl bg-slate-950/60 border border-white/10 space-y-3">
           <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm">
             <Apple className="w-4 h-4" />
-            <span>Targeted Nutritional Guidance</span>
+            <span>{t.analysis.dietaryGuidance}</span>
           </div>
           <ul className="space-y-2 text-xs text-slate-300">
             {actionPlan.diet.map((item, i) => (
@@ -55,7 +58,7 @@ export const ActionPlanCard: React.FC<ActionPlanCardProps> = ({ actionPlan }) =>
         <div className="p-5 rounded-2xl bg-slate-950/60 border border-white/10 space-y-3">
           <div className="flex items-center gap-2 text-cyan-400 font-bold text-sm">
             <Dumbbell className="w-4 h-4" />
-            <span>Physical Activity & Conditioning</span>
+            <span>{t.analysis.exerciseProtocol}</span>
           </div>
           <ul className="space-y-2 text-xs text-slate-300">
             {actionPlan.exercise.map((item, i) => (
@@ -71,7 +74,7 @@ export const ActionPlanCard: React.FC<ActionPlanCardProps> = ({ actionPlan }) =>
         <div className="p-5 rounded-2xl bg-slate-950/60 border border-white/10 space-y-3">
           <div className="flex items-center gap-2 text-blue-400 font-bold text-sm">
             <Droplets className="w-4 h-4" />
-            <span>Hydration & Circadian Sleep Protocol</span>
+            <span>{t.analysis.sleepHydration}</span>
           </div>
           <ul className="space-y-2 text-xs text-slate-300">
             {actionPlan.waterAndSleep.map((item, i) => (
@@ -87,7 +90,7 @@ export const ActionPlanCard: React.FC<ActionPlanCardProps> = ({ actionPlan }) =>
         <div className="p-5 rounded-2xl bg-slate-950/60 border border-white/10 space-y-3">
           <div className="flex items-center gap-2 text-purple-400 font-bold text-sm">
             <CalendarCheck className="w-4 h-4" />
-            <span>Recommended Follow-Up Laboratory Tests</span>
+            <span>{t.analysis.followUpTests}</span>
           </div>
           <ul className="space-y-2 text-xs text-slate-300">
             {actionPlan.recommendedFollowUpTests.map((item, i) => (
@@ -104,10 +107,10 @@ export const ActionPlanCard: React.FC<ActionPlanCardProps> = ({ actionPlan }) =>
       <div className="p-5 rounded-2xl bg-gradient-to-r from-cyan-950/40 via-blue-950/40 to-slate-950 border border-cyan-500/30 space-y-3">
         <div className="flex items-center gap-2 text-cyan-300 font-bold text-sm">
           <HelpCircle className="w-4 h-4 text-cyan-400" />
-          <span>Curated Questions to Ask Your Physician at Next Appointment</span>
+          <span>{t.analysis.questionsForDoctor}</span>
         </div>
         <p className="text-xs text-slate-400">
-          Print or save these AI-recommended clinical inquiry points to maximize your doctor consultation time:
+          AI-recommended clinical inquiry points to discuss with your physician:
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 pt-1">
           {actionPlan.questionsForDoctor.map((q, i) => (

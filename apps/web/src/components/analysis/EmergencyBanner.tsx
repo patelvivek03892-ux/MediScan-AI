@@ -1,17 +1,18 @@
 'use client';
 
 import React, { useState } from 'react';
-import { AlertTriangle, Bell, BellOff, PhoneCall, ShieldAlert, HeartPulse } from 'lucide-react';
+import { Bell, BellOff, PhoneCall, ShieldAlert, HeartPulse } from 'lucide-react';
 import { EmergencyAlert } from '../../types/medical';
+import { useLanguage } from '../../lib/i18n/LanguageContext';
 
 interface EmergencyBannerProps {
   alert: EmergencyAlert;
 }
 
 export const EmergencyBanner: React.FC<EmergencyBannerProps> = ({ alert }) => {
+  const { t } = useLanguage();
   const [soundEnabled, setSoundEnabled] = useState(false);
 
-  // Play synthetic alert tone via Web Audio API
   const playAlertTone = () => {
     if (typeof window === 'undefined') return;
     try {
@@ -20,8 +21,8 @@ export const EmergencyBanner: React.FC<EmergencyBannerProps> = ({ alert }) => {
       const gain = audioCtx.createGain();
 
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(880, audioCtx.currentTime); // A5
-      osc.frequency.setValueAtTime(440, audioCtx.currentTime + 0.15); // A4
+      osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+      osc.frequency.setValueAtTime(440, audioCtx.currentTime + 0.15);
 
       gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
@@ -57,10 +58,10 @@ export const EmergencyBanner: React.FC<EmergencyBannerProps> = ({ alert }) => {
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-black uppercase tracking-widest text-red-400">
-                  CRITICAL EMERGENCY DETECTION
+                  {t.analysis.emergencyBannerTitle}
                 </span>
                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-500/30 text-red-200 border border-red-400/40">
-                  Immediate Attention Required
+                  {t.common.critical}
                 </span>
               </div>
               <h2 className="text-xl md:text-2xl font-black text-white tracking-tight">
@@ -79,7 +80,7 @@ export const EmergencyBanner: React.FC<EmergencyBannerProps> = ({ alert }) => {
               }`}
             >
               {soundEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
-              <span>{soundEnabled ? 'Alert Tone Active' : 'Enable Tone'}</span>
+              <span>{soundEnabled ? 'Alert Tone: ON' : 'Alert Tone: OFF'}</span>
             </button>
           </div>
         </div>
@@ -116,11 +117,11 @@ export const EmergencyBanner: React.FC<EmergencyBannerProps> = ({ alert }) => {
           </div>
           <div className="flex items-center gap-3 shrink-0">
             <a
-              href="tel:911"
+              href="tel:112"
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white hover:bg-slate-100 text-red-600 font-extrabold text-xs shadow-lg transition-all"
             >
               <PhoneCall className="w-4 h-4" />
-              <span>Call Emergency (911 / 112)</span>
+              <span>Call Emergency (112 / 911)</span>
             </a>
           </div>
         </div>

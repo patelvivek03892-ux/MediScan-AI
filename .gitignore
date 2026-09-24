@@ -1,0 +1,63 @@
+﻿# ================================
+# MediScan-AI Git Ignore
+# ================================
+
+# Environment / Secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.class
+.pytest_cache/
+.mypy_cache/
+.venv/
+venv/
+env/
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+dist/
+build/
+.turbo/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Python / application logs
+*.log
+logs/
+*.sqlite
+*.sqlite3
+*.db
+
+# Uploaded medical/patient data
+uploads/
+storage/uploads/
+medical-reports/
+medical-images/
+prescriptions/
+
+# Temporary files
+*.tmp
+*.temp
+*.cache
+.cache/
+
+# IDE / Editor
+.vscode/*
+!.vscode/launch.json
+!.vscode/settings.json
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Docker local overrides
+docker-compose.override.yml

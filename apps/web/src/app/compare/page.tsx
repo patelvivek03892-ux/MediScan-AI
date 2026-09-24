@@ -5,15 +5,14 @@ import {
   GitCompare,
   ArrowRight,
   TrendingUp,
-  TrendingDown,
   Minus,
-  CheckCircle2,
-  AlertTriangle,
   Calendar
 } from 'lucide-react';
-import { METABOLIC_REPORT } from '../../lib/sampleData';
+import { useLanguage } from '../../lib/i18n/LanguageContext';
 
 export default function ComparePage() {
+  const { t } = useLanguage();
+
   const comparisonItems = [
     {
       name: 'Hemoglobin',
@@ -59,25 +58,15 @@ export default function ComparePage() {
       name: 'HDL Cholesterol (Good)',
       category: 'Lipid',
       unit: 'mg/dL',
-      baseline: 44,
-      current: 36,
-      delta: -8,
+      baseline: 48,
+      current: 38,
+      delta: -10,
       status: 'WORSENED',
-      note: 'Protective HDL dropped'
-    },
-    {
-      name: 'Triglycerides',
-      category: 'Lipid',
-      unit: 'mg/dL',
-      baseline: 140,
-      current: 215,
-      delta: +75,
-      status: 'WORSENED',
-      note: 'Hypertriglyceridemia spike'
+      note: 'Cardioprotective reserve decrease'
     },
     {
       name: 'Serum Creatinine',
-      category: 'Kidney',
+      category: 'Renal',
       unit: 'mg/dL',
       baseline: 0.95,
       current: 1.32,
@@ -108,133 +97,131 @@ export default function ComparePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white pt-24 pb-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      <div className="max-w-7xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-xs text-cyan-400 font-semibold mb-2">
-              <GitCompare className="w-3.5 h-3.5" />
-              Longitudinal Report Diff Engine
-            </div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-white">
-              Side-by-Side Report Comparison
-            </h1>
-            <p className="text-sm text-slate-400 mt-1">
-              Comparing Baseline Report (14-Feb-2026) vs Current Diagnostic Panel (12-Aug-2026).
-            </p>
+    <div className="py-6 sm:py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-slate-800/80">
+        <div>
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-teal-950/60 border border-teal-700/50 text-xs text-teal-300 font-semibold mb-1">
+            <GitCompare className="w-3.5 h-3.5" />
+            <span>{t.compare.title}</span>
           </div>
-
-          <div className="flex items-center gap-3">
-            <div className="px-4 py-2 rounded-xl bg-slate-900 border border-white/10 text-xs text-slate-300 flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-cyan-400" />
-              <span>Interval: 6 Months (180 Days)</span>
-            </div>
-          </div>
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
+            {t.compare.title}
+          </h1>
+          <p className="text-xs text-slate-400 mt-0.5">
+            {t.compare.subtitle}
+          </p>
         </div>
 
-        {/* Top Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Baseline Panel */}
-          <div className="p-6 rounded-3xl bg-slate-900/60 border border-white/10 backdrop-blur-xl space-y-3">
-            <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block">
-              BASELINE TEST (6 MONTHS AGO)
-            </span>
-            <div className="flex items-baseline justify-between">
-              <h3 className="text-xl font-bold text-white">Annual Health Profile</h3>
-              <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
-                Score: 88/100
-              </span>
-            </div>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Normal fasting blood sugar, borderline LDL, optimal kidney clearance, normal hemoglobin.
-            </p>
-          </div>
-
-          {/* Current Panel */}
-          <div className="p-6 rounded-3xl bg-slate-900/60 border border-cyan-500/30 backdrop-blur-xl space-y-3">
-            <span className="text-[10px] font-mono text-cyan-400 uppercase tracking-wider block">
-              CURRENT TEST (12-AUG-2026)
-            </span>
-            <div className="flex items-baseline justify-between">
-              <h3 className="text-xl font-bold text-white">Metabolic & Lipid Panel</h3>
-              <span className="text-xs font-mono font-bold text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/30">
-                Score: 68/100 (-20 pts)
-              </span>
-            </div>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Significant elevation in fasting glucose & HbA1c; rise in atherogenic LDL; mild anemia.
-            </p>
+        <div className="flex items-center gap-2">
+          <div className="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-300 flex items-center gap-2">
+            <Calendar className="w-3.5 h-3.5 text-teal-400" />
+            <span>Interval: 6 Months (180 Days)</span>
           </div>
         </div>
+      </div>
 
-        {/* Comparison Biomarker Table */}
-        <div className="rounded-3xl bg-slate-900/60 border border-white/10 backdrop-blur-xl overflow-hidden">
-          <div className="p-6 border-b border-white/5">
-            <h3 className="text-lg font-bold text-white">Biomarker Delta Tracking</h3>
-            <p className="text-xs text-slate-400">
-              Detailed breakdown of biological metric shifts between the two testing intervals.
-            </p>
+      {/* Top Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Baseline Panel */}
+        <div className="p-4 sm:p-5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
+          <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block font-semibold">
+            {t.compare.baseline}
+          </span>
+          <div className="flex items-baseline justify-between">
+            <h3 className="text-base font-bold text-white">{t.hero.sampleWellness}</h3>
+            <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800/40">
+              Score: 88/100
+            </span>
           </div>
+          <p className="text-xs text-slate-400 leading-relaxed">
+            Normal fasting blood sugar, borderline LDL, optimal kidney clearance, normal hemoglobin.
+          </p>
+        </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-950/80 text-slate-400 uppercase tracking-wider font-mono text-[10px] border-b border-white/5">
-                <tr>
-                  <th className="px-6 py-3.5">Biomarker</th>
-                  <th className="px-6 py-3.5">Category</th>
-                  <th className="px-6 py-3.5">Baseline</th>
-                  <th className="px-6 py-3.5">Current</th>
-                  <th className="px-6 py-3.5">Delta Shift</th>
-                  <th className="px-6 py-3.5">Clinical Trajectory</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5 font-medium">
-                {comparisonItems.map((item, i) => {
-                  const isWorsened = item.status === 'WORSENED';
-                  return (
-                    <tr key={i} className="hover:bg-white/[0.02] transition-colors">
-                      <td className="px-6 py-4 font-bold text-white">{item.name}</td>
-                      <td className="px-6 py-4 text-slate-400 font-mono text-[11px]">
-                        {item.category}
-                      </td>
-                      <td className="px-6 py-4 text-slate-300 font-mono">
-                        {item.baseline} {item.unit}
-                      </td>
-                      <td className="px-6 py-4 text-white font-mono font-bold">
-                        {item.current} {item.unit}
-                      </td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={`inline-flex items-center gap-1 font-mono font-bold ${
-                            isWorsened ? 'text-red-400' : 'text-slate-400'
-                          }`}
-                        >
-                          {item.delta > 0 ? `+${item.delta}` : item.delta} {item.unit}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider inline-flex items-center gap-1 ${
-                            isWorsened
-                              ? 'bg-red-500/10 text-red-400 border border-red-500/20'
-                              : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                          }`}
-                        >
-                          {isWorsened ? (
-                            <TrendingUp className="w-3 h-3 text-red-400" />
-                          ) : (
-                            <Minus className="w-3 h-3 text-emerald-400" />
-                          )}
-                          {item.note}
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+        {/* Current Panel */}
+        <div className="p-4 sm:p-5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
+          <span className="text-[10px] font-mono text-teal-400 uppercase tracking-wider block font-semibold">
+            {t.compare.current}
+          </span>
+          <div className="flex items-baseline justify-between">
+            <h3 className="text-base font-bold text-white">{t.hero.sampleMetabolic}</h3>
+            <span className="text-xs font-mono font-bold text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-800/40">
+              Score: 68/100 (-20 pts)
+            </span>
           </div>
+          <p className="text-xs text-slate-400 leading-relaxed">
+            Significant elevation in fasting glucose & HbA1c; rise in atherogenic LDL; mild anemia.
+          </p>
+        </div>
+      </div>
+
+      {/* Comparison Biomarker Table */}
+      <div className="rounded-xl bg-slate-900/80 border border-slate-800 overflow-hidden">
+        <div className="p-4 sm:p-5 border-b border-slate-800">
+          <h3 className="text-sm font-bold text-white">{t.compare.title}</h3>
+          <p className="text-xs text-slate-400 mt-0.5">
+            {t.compare.compareNotice}
+          </p>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs border-collapse">
+            <thead className="bg-[#0b111e] text-slate-400 uppercase tracking-wider font-mono text-[10px] border-b border-slate-800">
+              <tr>
+                <th className="px-4 py-3">{t.compare.colBiomarker}</th>
+                <th className="px-4 py-3">{t.compare.colCategory}</th>
+                <th className="px-4 py-3">{t.compare.colBaseline}</th>
+                <th className="px-4 py-3">{t.compare.colCurrent}</th>
+                <th className="px-4 py-3">{t.compare.colDelta}</th>
+                <th className="px-4 py-3">{t.compare.colStatus}</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-800/60">
+              {comparisonItems.map((item, i) => {
+                const isWorsened = item.status === 'WORSENED';
+                return (
+                  <tr key={i} className="hover:bg-slate-800/40 transition-colors">
+                    <td className="px-4 py-3 font-semibold text-white">{item.name}</td>
+                    <td className="px-4 py-3 text-slate-400 font-mono text-[11px]">
+                      {item.category}
+                    </td>
+                    <td className="px-4 py-3 text-slate-300 font-mono">
+                      {item.baseline} {item.unit}
+                    </td>
+                    <td className="px-4 py-3 text-white font-mono font-bold">
+                      {item.current} {item.unit}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`inline-flex items-center gap-1 font-mono font-bold ${
+                          isWorsened ? 'text-rose-400' : 'text-slate-300'
+                        }`}
+                      >
+                        {item.delta > 0 ? `+${item.delta}` : item.delta} {item.unit}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`px-2 py-0.5 rounded text-[10px] font-medium uppercase tracking-wider inline-flex items-center gap-1 ${
+                          isWorsened
+                            ? 'bg-rose-950/60 text-rose-400 border border-rose-800/40'
+                            : 'bg-emerald-950/60 text-emerald-400 border border-emerald-800/40'
+                        }`}
+                      >
+                        {isWorsened ? (
+                          <TrendingUp className="w-3 h-3 text-rose-400" />
+                        ) : (
+                          <Minus className="w-3 h-3 text-emerald-400" />
+                        )}
+                        {item.note}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

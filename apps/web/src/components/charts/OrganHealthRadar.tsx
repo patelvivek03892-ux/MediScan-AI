@@ -22,17 +22,26 @@ interface OrganScores {
 }
 
 interface OrganHealthRadarProps {
-  scores: OrganScores;
+  scores?: Partial<OrganScores>;
 }
 
 export const OrganHealthRadar: React.FC<OrganHealthRadarProps> = ({ scores }) => {
+  const safeScores = {
+    cardiovascular: scores?.cardiovascular ?? 85,
+    endocrine: scores?.endocrine ?? 85,
+    renal: scores?.renal ?? 85,
+    hepatic: scores?.hepatic ?? 85,
+    hematology: scores?.hematology ?? 85,
+    immune: scores?.immune ?? 85
+  };
+
   const data = [
-    { organ: 'Cardio', score: scores.cardiovascular, fullMark: 100 },
-    { organ: 'Endocrine', score: scores.endocrine, fullMark: 100 },
-    { organ: 'Renal (Kidneys)', score: scores.renal, fullMark: 100 },
-    { organ: 'Hepatic (Liver)', score: scores.hepatic, fullMark: 100 },
-    { organ: 'Hematology', score: scores.hematology, fullMark: 100 },
-    { organ: 'Immunity', score: scores.immune, fullMark: 100 }
+    { organ: 'Cardio', score: safeScores.cardiovascular, fullMark: 100 },
+    { organ: 'Endocrine', score: safeScores.endocrine, fullMark: 100 },
+    { organ: 'Renal (Kidneys)', score: safeScores.renal, fullMark: 100 },
+    { organ: 'Hepatic (Liver)', score: safeScores.hepatic, fullMark: 100 },
+    { organ: 'Hematology', score: safeScores.hematology, fullMark: 100 },
+    { organ: 'Immunity', score: safeScores.immune, fullMark: 100 }
   ];
 
   return (
@@ -77,15 +86,15 @@ export const OrganHealthRadar: React.FC<OrganHealthRadarProps> = ({ scores }) =>
       <div className="grid grid-cols-3 gap-2 pt-2 border-t border-white/5 text-[10px] text-center">
         <div className="p-2 rounded-lg bg-slate-950/60 border border-white/5">
           <span className="text-slate-400 block">Renal Index</span>
-          <span className="font-bold text-cyan-300">{scores.renal}%</span>
+          <span className="font-bold text-cyan-300">{safeScores.renal}%</span>
         </div>
         <div className="p-2 rounded-lg bg-slate-950/60 border border-white/5">
           <span className="text-slate-400 block">Hepatic</span>
-          <span className="font-bold text-emerald-300">{scores.hepatic}%</span>
+          <span className="font-bold text-emerald-300">{safeScores.hepatic}%</span>
         </div>
         <div className="p-2 rounded-lg bg-slate-950/60 border border-white/5">
           <span className="text-slate-400 block">Cardiovascular</span>
-          <span className="font-bold text-amber-300">{scores.cardiovascular}%</span>
+          <span className="font-bold text-amber-300">{safeScores.cardiovascular}%</span>
         </div>
       </div>
     </div>

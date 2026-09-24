@@ -4,7 +4,8 @@ MediScan AI - Medical Report Database Model
 
 from datetime import datetime
 
-from sqlalchemy import Column, DateTime, Float, Integer, String, Text
+from sqlalchemy import Column, DateTime, Float, Integer, String, Text, ForeignKey
+from sqlalchemy.orm import relationship
 
 from database import Base
 
@@ -17,6 +18,13 @@ class MedicalReport(Base):
     __tablename__ = "medical_reports"
 
     id = Column(Integer, primary_key=True, index=True)
+
+    user_id = Column(
+        Integer,
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=True,
+        index=True,
+    )
 
     report_id = Column(
         String(100),
@@ -83,3 +91,6 @@ class MedicalReport(Base):
         onupdate=datetime.utcnow,
         nullable=False,
     )
+
+    user = relationship("User", back_populates="reports")
+

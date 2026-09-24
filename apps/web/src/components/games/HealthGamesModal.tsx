@@ -16,11 +16,14 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { useLanguage } from '../../lib/i18n/LanguageContext';
 
 type GameMode = 'MENU' | 'VIRUS_HUNTER' | 'PILL_SORT' | 'DNA_MATCHER' | 'HEARTBEAT_RHYTHM';
 
 export const HealthGamesModal: React.FC = () => {
+  const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
+
   const [activeGame, setActiveGame] = useState<GameMode>('MENU');
   const [score, setScore] = useState(0);
   const [highScore, setHighScore] = useState(120);
@@ -187,7 +190,7 @@ export const HealthGamesModal: React.FC = () => {
         className="fixed bottom-6 right-6 z-40 flex items-center gap-2 px-4 py-3 rounded-full bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 text-white font-bold text-xs shadow-[0_0_25px_rgba(56,189,248,0.5)] hover:scale-105 active:scale-95 transition-all border border-cyan-400/40"
       >
         <Gamepad2 className="w-5 h-5 animate-spin-slow" />
-        <span className="tracking-wide">Health Fun</span>
+        <span className="tracking-wide">{t.games.button}</span>
         <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
       </button>
 
@@ -202,9 +205,9 @@ export const HealthGamesModal: React.FC = () => {
                   <Gamepad2 className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold tracking-tight">MediScan Health Fun</h3>
+                  <h3 className="text-xl font-bold tracking-tight">{t.games.title}</h3>
                   <p className="text-xs text-slate-400">
-                    Interactive clinical educational mini-games & medical trivia.
+                    {t.games.subtitle}
                   </p>
                 </div>
               </div>
@@ -241,7 +244,7 @@ export const HealthGamesModal: React.FC = () => {
                       🦠
                     </div>
                     <h4 className="font-bold text-sm text-white group-hover:text-cyan-300 transition-colors">
-                      Virus Hunter
+                      {t.games.virusHunter}
                     </h4>
                     <p className="text-xs text-slate-400 leading-relaxed">
                       Neutralize invading viral pathogens before time expires. Avoid friendly white blood cells!
@@ -260,7 +263,7 @@ export const HealthGamesModal: React.FC = () => {
                       <Pill className="w-5 h-5" />
                     </div>
                     <h4 className="font-bold text-sm text-white group-hover:text-cyan-300 transition-colors">
-                      Pill Sort Challenge
+                      {t.games.pillSort}
                     </h4>
                     <p className="text-xs text-slate-400 leading-relaxed">
                       Match common medications to correct morning (AM) or night (PM) dosage schedules.
@@ -279,7 +282,7 @@ export const HealthGamesModal: React.FC = () => {
                       <Dna className="w-5 h-5" />
                     </div>
                     <h4 className="font-bold text-sm text-white group-hover:text-cyan-300 transition-colors">
-                      DNA Base Matcher
+                      {t.games.dnaMatcher}
                     </h4>
                     <p className="text-xs text-slate-400 leading-relaxed">
                       Pair Adenine (A), Thymine (T), Cytosine (C), and Guanine (G) in rapid nucleotide succession.
@@ -298,7 +301,7 @@ export const HealthGamesModal: React.FC = () => {
                       <Heart className="w-5 h-5" />
                     </div>
                     <h4 className="font-bold text-sm text-white group-hover:text-cyan-300 transition-colors">
-                      Heartbeat Rhythm (60 BPM)
+                      {t.games.heartbeatRhythm}
                     </h4>
                     <p className="text-xs text-slate-400 leading-relaxed">
                       Tap precisely on the systolic cardiac peak to synchronize sinus rhythm.

@@ -24,6 +24,7 @@ export interface Biomarker {
   status: BiomarkerStatus;
   clinicalSignificance: string;
   historicalTrend?: number[]; // last 4 time points
+  referenceRange?: string;
 }
 
 export interface EmergencyAlert {
@@ -78,4 +79,13 @@ export interface MedicalReport {
   actionPlan: ActionPlan;
   ocrConfidence: number;
   rawText?: string;
+  timestamp?: string;
+  patientInfo?: {
+    name?: string;
+    age?: number;
+    gender?: string;
+    labName?: string;
+    date?: string;
+    [key: string]: any;
+  };
 }

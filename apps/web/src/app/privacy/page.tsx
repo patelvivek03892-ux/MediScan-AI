@@ -1,37 +1,38 @@
+'use client';
+
 import React from 'react';
-import { Lock, ShieldCheck } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
+import { useLanguage } from '../../lib/i18n/LanguageContext';
 
 export default function PrivacyPage() {
+  const { t } = useLanguage();
+
   return (
-    <div className="min-h-screen bg-slate-950 text-white pt-28 pb-16 px-4 sm:px-6 lg:px-8 relative">
-      <div className="max-w-3xl mx-auto space-y-8">
-        <div>
-          <h1 className="text-3xl font-extrabold tracking-tight">Privacy Policy</h1>
-          <p className="text-xs text-slate-400 mt-1">Last Updated: August 2026 | HIPAA & GDPR Compliant</p>
+    <div className="py-8 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto space-y-6">
+      <div>
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-teal-950/60 border border-teal-700/50 text-xs text-teal-300 font-semibold mb-2">
+          <ShieldCheck className="w-3.5 h-3.5 text-teal-400" />
+          <span>HIPAA & Privacy Protocol</span>
         </div>
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">{t.privacy.title}</h1>
+        <p className="text-xs text-slate-400 mt-1">{t.privacy.lastUpdated}</p>
+      </div>
 
-        <div className="space-y-6 text-xs text-slate-300 leading-relaxed bg-slate-900/60 p-6 sm:p-8 rounded-3xl border border-white/10">
-          <section className="space-y-2">
-            <h2 className="text-sm font-bold text-white uppercase tracking-wider">1. Zero-Knowledge Processing</h2>
-            <p>
-              MediScan AI is designed from the ground up to respect patient confidentiality. By default, documents scanned via your camera or uploaded in browser sessions are processed in ephemeral client-side memory or securely piped to your private on-premise container cluster.
-            </p>
-          </section>
+      <div className="space-y-5 text-xs text-slate-300 leading-relaxed bg-slate-900/80 p-5 sm:p-6 rounded-xl border border-slate-800">
+        <section className="space-y-1.5">
+          <h2 className="text-xs font-bold text-white uppercase tracking-wider">{t.privacy.s1Title}</h2>
+          <p>{t.privacy.s1Desc}</p>
+        </section>
 
-          <section className="space-y-2">
-            <h2 className="text-sm font-bold text-white uppercase tracking-wider">2. Protected Health Information (PHI)</h2>
-            <p>
-              We do not sell, rent, monetize, or harvest personal health data for advertising. Patient names, lab affiliations, and numerical values are never transferred to commercial brokers.
-            </p>
-          </section>
+        <section className="space-y-1.5">
+          <h2 className="text-xs font-bold text-white uppercase tracking-wider">{t.privacy.s2Title}</h2>
+          <p>{t.privacy.s2Desc}</p>
+        </section>
 
-          <section className="space-y-2">
-            <h2 className="text-sm font-bold text-white uppercase tracking-wider">3. Cryptographic Transmission</h2>
-            <p>
-              All data transmitted between your device and API endpoints is encrypted using TLS 1.3 and stored with AES-256-GCM authenticated encryption at rest.
-            </p>
-          </section>
-        </div>
+        <section className="space-y-1.5">
+          <h2 className="text-xs font-bold text-white uppercase tracking-wider">{t.privacy.s3Title}</h2>
+          <p>{t.privacy.s3Desc}</p>
+        </section>
       </div>
     </div>
   );

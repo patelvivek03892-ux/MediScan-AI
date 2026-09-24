@@ -17,18 +17,14 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 # DATABASE URL
 # ============================================================
 
-DATABASE_URL = os.getenv("DATABASE_URL")
-
-
-if not DATABASE_URL:
-    raise RuntimeError(
-        "DATABASE_URL environment variable is not configured."
-    )
-
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./mediscan.db")
 
 # ============================================================
 # DATABASE ENGINE
 # ============================================================
+
+connect_args = {}
+engine_kwargs = {}
 
 if DATABASE_URL.startswith("postgresql://"):
     DATABASE_URL = DATABASE_URL.replace(
@@ -36,10 +32,14 @@ if DATABASE_URL.startswith("postgresql://"):
         "postgresql+psycopg://",
         1,
     )
+    engine_kwargs["pool_pre_ping"] = True
+elif DATABASE_URL.startswith("sqlite"):
+    connect_args["check_same_thread"] = False
 
 engine = create_engine(
     DATABASE_URL,
-    pool_pre_ping=True,
+    connect_args=connect_args,
+    **engine_kwargs
 )
 
 

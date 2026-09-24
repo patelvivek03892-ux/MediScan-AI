@@ -16,9 +16,14 @@ import {
   Sparkles,
   Menu,
   X,
-  PhoneCall
+  User,
+  LogIn,
+  LogOut,
+  UserPlus
 } from 'lucide-react';
-import { translations, Language } from '../../lib/i18n/translations';
+import { Language } from '../../lib/i18n/translations';
+import { useLanguage } from '../../lib/i18n/LanguageContext';
+import { getCurrentUser, logoutUser, UserProfile } from '../../lib/authStore';
 
 interface NavbarProps {
   currentLang?: Language;
@@ -26,15 +31,22 @@ interface NavbarProps {
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
-  currentLang = 'en',
   onLanguageChange
 }) => {
-  const [lang, setLang] = useState<Language>(currentLang);
+  const { lang, setLang, t } = useLanguage();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [user, setUser] = useState<UserProfile | null>(null);
   const pathname = usePathname();
 
-  const t = translations[lang].nav;
+  useEffect(() => {
+    const updateAuth = () => {
+      setUser(getCurrentUser());
+    };
+    updateAuth();
+    window.addEventListener('mediscan_auth_changed', updateAuth);
+    return () => window.removeEventListener('mediscan_auth_changed', updateAuth);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -47,30 +59,17 @@ export const Navbar: React.FC<NavbarProps> = ({
   const handleLangSelect = (newLang: Language) => {
     setLang(newLang);
     if (onLanguageChange) onLanguageChange(newLang);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('mediscan_lang', newLang);
-      window.dispatchEvent(new Event('language_changed'));
-    }
   };
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('mediscan_lang') as Language;
-      if (stored && (stored === 'en' || stored === 'hi' || stored === 'gu')) {
-        setLang(stored);
-      }
-    }
-  }, []);
-
   const navLinks = [
-    { href: '/', label: t.home, icon: Activity },
-    { href: '/scanner', label: t.scanner, icon: Camera },
-    { href: '/upload', label: t.upload, icon: UploadCloud },
-    { href: '/analysis', label: t.analysis, icon: FileText },
-    { href: '/dashboard', label: t.dashboard, icon: BarChart3 },
-    { href: '/compare', label: t.compare, icon: GitCompare },
-    { href: '/chat', label: t.chat, icon: MessageSquare },
-    { href: '/admin', label: t.admin, icon: ShieldCheck }
+    { href: '/', label: t.nav.home, icon: Activity },
+    { href: '/scanner', label: t.nav.scanner, icon: Camera },
+    { href: '/upload', label: t.nav.upload, icon: UploadCloud },
+    { href: '/analysis', label: t.nav.analysis, icon: FileText },
+    { href: '/dashboard', label: t.nav.dashboard, icon: BarChart3 },
+    { href: '/compare', label: t.nav.compare, icon: GitCompare },
+    { href: '/chat', label: t.nav.chat, icon: MessageSquare },
+    { href: '/admin', label: t.nav.admin, icon: ShieldCheck }
   ];
 
   return (
@@ -98,7 +97,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               MediScan <span className="text-cyan-400">AI</span>
             </span>
             <span className="block text-[10px] font-medium tracking-wider text-cyan-400/80 uppercase">
-              Clinical Intelligence
+              {t.nav.tagline}
             </span>
           </div>
         </Link>
@@ -125,15 +124,16 @@ export const Navbar: React.FC<NavbarProps> = ({
           })}
         </nav>
 
-        {/* Right Section: Language Selector & Emergency Triage Badge */}
-        <div className="hidden lg:flex items-center gap-3">
+        {/* Right Section: Language Selector, Auth & Scanner Action */}
+        <div className="hidden lg:flex items-center gap-2.5">
           {/* Multilingual Selector */}
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900/70 border border-white/10 text-xs text-slate-300">
+          <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-900/70 border border-white/10 text-xs text-slate-300">
             <Globe className="w-3.5 h-3.5 text-cyan-400" />
             <select
               value={lang}
               onChange={(e) => handleLangSelect(e.target.value as Language)}
               className="bg-transparent text-slate-200 outline-none cursor-pointer text-xs font-medium pr-1"
+              aria-label={t.nav.selectLanguage}
             >
               <option value="en" className="bg-slate-900 text-white">English (EN)</option>
               <option value="hi" className="bg-slate-900 text-white">हिन्दी (HI)</option>
@@ -141,13 +141,50 @@ export const Navbar: React.FC<NavbarProps> = ({
             </select>
           </div>
 
+          {/* User Auth Section */}
+          {user ? (
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/80 border border-cyan-500/30 text-xs">
+              <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-cyan-400 to-blue-600 text-slate-950 font-extrabold flex items-center justify-center text-[10px]">
+                {user.name.charAt(0)}
+              </div>
+              <div className="text-left leading-tight hidden xl:block">
+                <span className="block font-bold text-white text-[11px] truncate max-w-[110px]">{user.name}</span>
+                <span className="text-[9px] text-cyan-400 font-mono">{user.role}</span>
+              </div>
+              <button
+                onClick={() => logoutUser()}
+                title={t.nav.logout}
+                className="p-1 rounded-lg hover:bg-white/10 text-slate-400 hover:text-red-400 transition-colors ml-1"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5">
+              <Link
+                href="/login"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-slate-900/70 border border-white/10 hover:border-cyan-400/30 transition-all"
+              >
+                <LogIn className="w-3.5 h-3.5 text-cyan-400" />
+                <span>{t.nav.login}</span>
+              </Link>
+              <Link
+                href="/signup"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-cyan-300 bg-cyan-500/10 border border-cyan-400/30 hover:bg-cyan-500/20 transition-all"
+              >
+                <UserPlus className="w-3.5 h-3.5" />
+                <span>{t.nav.signup}</span>
+              </Link>
+            </div>
+          )}
+
           {/* Quick Scanner Action */}
           <Link
             href="/scanner"
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-slate-950 bg-gradient-to-r from-cyan-400 to-blue-500 hover:from-cyan-300 hover:to-blue-400 transition-all shadow-[0_0_20px_rgba(56,189,248,0.4)] hover:scale-105 active:scale-95"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-950 bg-gradient-to-r from-cyan-400 to-blue-500 hover:from-cyan-300 hover:to-blue-400 transition-all shadow-[0_0_15px_rgba(56,189,248,0.35)] hover:scale-105 active:scale-95"
           >
-            <Camera className="w-4 h-4" />
-            <span>AI Scan</span>
+            <Camera className="w-3.5 h-3.5" />
+            <span>{t.hero.ctaScan}</span>
           </Link>
         </div>
 
@@ -155,6 +192,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           className="xl:hidden p-2 rounded-lg bg-slate-900 border border-white/10 text-slate-300 hover:text-white"
+          aria-label="Toggle Navigation Menu"
         >
           {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
@@ -185,10 +223,53 @@ export const Navbar: React.FC<NavbarProps> = ({
             })}
           </div>
 
-          <div className="pt-4 border-t border-white/10 flex items-center justify-between">
+          {/* Mobile Auth Bar */}
+          <div className="pt-2 pb-2 border-t border-white/10 flex items-center justify-between">
+            {user ? (
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-cyan-400 to-blue-600 text-slate-950 font-bold flex items-center justify-center text-xs">
+                    {user.name.charAt(0)}
+                  </div>
+                  <div>
+                    <span className="text-xs font-bold text-white block">{user.name}</span>
+                    <span className="text-[10px] text-cyan-400 font-mono">{user.role}</span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    logoutUser();
+                    setMobileMenuOpen(false);
+                  }}
+                  className="px-3 py-1.5 rounded-lg bg-red-500/10 text-red-400 text-xs font-semibold border border-red-500/20"
+                >
+                  {t.nav.logout}
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 w-full">
+                <Link
+                  href="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex-1 text-center py-2 rounded-xl bg-slate-900 border border-white/10 text-xs font-semibold text-slate-200"
+                >
+                  {t.nav.login}
+                </Link>
+                <Link
+                  href="/signup"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex-1 text-center py-2 rounded-xl bg-cyan-400 text-slate-950 text-xs font-bold"
+                >
+                  {t.nav.signup}
+                </Link>
+              </div>
+            )}
+          </div>
+
+          <div className="pt-3 border-t border-white/10 flex items-center justify-between">
             <div className="flex items-center gap-2 text-xs text-slate-400">
               <Globe className="w-4 h-4 text-cyan-400" />
-              <span>Language:</span>
+              <span>{t.nav.selectLanguage}:</span>
               <select
                 value={lang}
                 onChange={(e) => handleLangSelect(e.target.value as Language)}
@@ -204,7 +285,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => setMobileMenuOpen(false)}
               className="px-4 py-2 rounded-xl text-xs font-bold text-slate-950 bg-gradient-to-r from-cyan-400 to-blue-500"
             >
-              Launch Scanner
+              {t.hero.ctaScan}
             </Link>
           </div>
         </div>
